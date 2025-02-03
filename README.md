@@ -1,179 +1,109 @@
-# Easy Docker Deploy
+# Self-Hosted Docker Deployer
 
-[![CI](https://github.com/yourusername/easy-docker-deploy/actions/workflows/ci.yml/badge.svg)](https://github.com/yourusername/easy-docker-deploy/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/yourusername/easy-docker-deploy/branch/main/graph/badge.svg)](https://codecov.io/gh/yourusername/easy-docker-deploy)
-[![License](https://img.shields.io/github/license/yourusername/easy-docker-deploy)](https://github.com/yourusername/easy-docker-deploy/blob/main/LICENSE)
-
-A command-line tool to easily deploy self-hosted applications using Docker.
+A powerful, user-friendly tool for deploying and managing self-hosted Docker applications, with a special focus on media automation services.
 
 ## Features
 
-- 🚀 Easy deployment of popular self-hosted applications
-- 🐳 Automatic Docker configuration generation
-- 🔄 Smart port and volume management
-- 📝 Structured logging with rotation
-- 💾 Efficient caching of application data
-- 🔒 Secure environment variable handling
-- 🎯 Validation of all configurations
-- 🔍 Rich CLI interface with detailed feedback
+- 🚀 **Easy Deployment**: Deploy Docker applications with a single command
+- 🏴‍☠️ **Pirate Mode**: One-click deployment of media automation services
+- 🔄 **Service Integration**: Automatic service discovery and configuration
+- 📁 **Volume Management**: Smart handling of persistent storage
+- 🌐 **Network Configuration**: Automatic network setup and service discovery
+- 🔒 **Security First**: Secure defaults and best practices built-in
 
-## Installation
+## Quick Start
 
-### Using pip
+### Installation
 
 ```bash
-pip install easy-docker-deploy
+# Clone the repository
+git clone https://github.com/lukin-ackroydAI/Self-Hosted-Docker-Deployer.git
+cd Self-Hosted-Docker-Deployer
+
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-### From source
+### Basic Usage
 
+Deploy a single application:
 ```bash
-git clone https://github.com/yourusername/easy-docker-deploy.git
-cd easy-docker-deploy
-pip install -e .
+easy-docker-deploy deploy app-name
 ```
 
-### Requirements
-
-- Python 3.8 or higher
-- Docker and Docker Compose
-- Git (for development)
-
-## Usage
-
-### Basic Commands
-
+List available applications:
 ```bash
-# Deploy an application
-easy-docker-deploy deploy nextcloud
-
-# Check application status
-easy-docker-deploy status nextcloud
-
-# View application logs
-easy-docker-deploy logs nextcloud
-
-# Stop an application
-easy-docker-deploy stop nextcloud
+easy-docker-deploy list
 ```
 
-### Advanced Options
+### Pirate Mode
 
+Deploy a complete media automation suite:
 ```bash
-# Deploy with custom port
-easy-docker-deploy deploy wordpress --port 8080
-
-# Deploy with custom volume
-easy-docker-deploy deploy gitea --volume /data/gitea:/data
-
-# Deploy with custom environment file
-easy-docker-deploy deploy postgres --env-file .env
-
-# Deploy on custom network
-easy-docker-deploy deploy nginx --network web-proxy
+easy-docker-deploy pirate
 ```
 
-### Configuration
-
-The tool can be configured using:
-
-1. Environment variables:
-   ```bash
-   export EASY_DOCKER_DEPLOY_BASE_DIR=/opt/docker
-   export EASY_DOCKER_DEPLOY_PORT_RANGE=8000-9000
-   export EASY_DOCKER_DEPLOY_NETWORK=custom-network
-   ```
-
-2. Configuration file:
-   ```yaml
-   # ~/.easy-docker-deploy/config.yml
-   base_dir: /opt/docker
-   default_port_range: [8000, 9000]
-   default_network: custom-network
-   cache_ttl: 3600
-   ```
-
-3. Command-line options:
-   ```bash
-   easy-docker-deploy --config config.yml deploy nextcloud
-   ```
-
-## Logging
-
-The tool provides structured logging with the following features:
-
-- JSON-formatted logs for easy parsing
-- Log rotation with configurable size and backup count
-- Different log levels (DEBUG, INFO, WARNING, ERROR)
-- Context-aware logging with extra fields
-- Console output using Rich for better readability
-
-Configure logging using:
-
+Customize the deployment:
 ```bash
-# Set log level
-easy-docker-deploy --log-level DEBUG deploy nextcloud
-
-# Specify log file
-easy-docker-deploy --log-file /var/log/easy-docker-deploy.log deploy nextcloud
+easy-docker-deploy pirate --media-path /path/to/media --timezone "America/New_York"
 ```
+
+## Documentation
+
+- [Pirate Mode Guide](docs/pirate_mode.md)
+- [Deployment Guide](docs/Deployment_Assistant_Design_Document.md)
 
 ## Development
 
-### Setting up development environment
+### Setup Development Environment
 
 ```bash
-# Clone repository
-git clone https://github.com/yourusername/easy-docker-deploy.git
-cd easy-docker-deploy
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
-
 # Install development dependencies
-pip install -e ".[dev]"
+pip install -r requirements-dev.txt
+
+# Run tests
+pytest
 ```
 
-### Running tests
+### Running Tests
 
 ```bash
 # Run all tests
 pytest
 
-# Run with coverage
-pytest --cov=src/easy_docker_deploy
-
 # Run specific test file
-pytest tests/test_utils/test_validation.py
-```
+pytest tests/test_config/test_pirate.py
 
-### Code quality
-
-```bash
-# Check code formatting
-ruff check .
-
-# Type checking
-mypy src tests
+# Run with coverage
+pytest --cov=src
 ```
 
 ## Contributing
 
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+### Guidelines
+
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests and linting
-5. Commit your changes (`git commit -m 'Add amazing feature'`)
-6. Push to the branch (`git push origin feature/amazing-feature`)
-7. Open a Pull Request
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## Security
+
+For security concerns, please open an issue or contact the repository owner directly.
+
 ## Acknowledgments
 
-- [awesome-selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted) for the application list
-- [Typer](https://typer.tiangolo.com/) for the CLI framework
-- [Rich](https://rich.readthedocs.io/) for beautiful terminal output 
+- Built with Python and Docker
+- Inspired by the need for simple, secure self-hosting solutions
+- Special thanks to the open-source community 
