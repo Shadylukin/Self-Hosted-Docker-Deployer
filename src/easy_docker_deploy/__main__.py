@@ -1,7 +1,7 @@
 """
-Main entry point for the Easy Docker Deploy package.
+Main entry point for the Self-Hosted Docker Deployer package.
 """
-from .cli.main import main
+from .cli.main import app
 
 if __name__ == '__main__':
-    main() 
+    app() 

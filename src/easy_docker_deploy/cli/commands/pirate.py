@@ -1,9 +1,9 @@
 """
 Command module for Pirate mode deployment.
 """
-import click
+import typer
 from pathlib import Path
-from typing import Optional, Dict
+from typing import Optional
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.panel import Panel
@@ -17,27 +17,18 @@ from ...utils.logging import get_logger
 logger = get_logger(__name__)
 console = Console()
 
+app = typer.Typer()
+
 class PirateDeploymentError(Exception):
     """Custom exception for Pirate mode deployment errors."""
     pass
 
-@click.command()
-@click.option(
-    "--media-path",
-    type=click.Path(exists=False),
-    help="Base path for media storage (will be created if it doesn't exist)",
-)
-@click.option(
-    "--timezone",
-    default="Etc/UTC",
-    help="Timezone for the services (e.g. America/New_York)",
-)
-@click.option(
-    "--verbose",
-    is_flag=True,
-    help="Enable verbose logging",
-)
-def pirate(media_path: Optional[str], timezone: str, verbose: bool) -> None:
+@app.command()
+def deploy(
+    media_path: Optional[str] = typer.Option(None, help="Base path for media storage (will be created if it doesn't exist)"),
+    timezone: str = typer.Option("Etc/UTC", help="Timezone for the services (e.g. America/New_York)"),
+    verbose: bool = typer.Option(False, help="Enable verbose logging")
+) -> None:
     """
     Deploy a preconfigured suite of media automation services.
     
@@ -68,14 +59,14 @@ def pirate(media_path: Optional[str], timezone: str, verbose: bool) -> None:
     except PirateDeploymentError as e:
         logger.error(f"Deployment failed: {str(e)}")
         console.print(f"[red]Error:[/red] {str(e)}")
-        raise click.Exit(1)
+        raise typer.Exit(1)
     except Exception as e:
         logger.exception("Unexpected error during deployment")
         console.print("[red]An unexpected error occurred during deployment.[/red]")
         console.print(f"[red]Error details:[/red] {str(e)}")
         if verbose:
             console.print_exception()
-        raise click.Exit(1)
+        raise typer.Exit(1)
 
 def _setup_media_path(media_path: Optional[str]) -> Path:
     """Set up and validate the media storage path."""
@@ -98,7 +89,7 @@ def _setup_media_path(media_path: Optional[str]) -> Path:
     except Exception as e:
         raise PirateDeploymentError(f"Failed to set up media path: {str(e)}")
 
-def _generate_configuration(media_path: Path, timezone: str) -> Dict:
+def _generate_configuration(media_path: Path, timezone: str) -> dict:
     """Generate and validate the deployment configuration."""
     try:
         logger.info("Generating deployment configuration")
@@ -115,7 +106,7 @@ def _generate_configuration(media_path: Path, timezone: str) -> Dict:
     except Exception as e:
         raise PirateDeploymentError(f"Failed to generate configuration: {str(e)}")
 
-def _deploy_services(config: Dict) -> None:
+def _deploy_services(config: dict) -> None:
     """Deploy services with progress feedback."""
     try:
         deployment = DeploymentService()
@@ -139,14 +130,14 @@ def _deploy_services(config: Dict) -> None:
     except Exception as e:
         raise PirateDeploymentError(f"Failed to deploy services: {str(e)}")
 
-def _show_success_message(config: Dict) -> None:
+def _show_success_message(config: dict) -> None:
     """Show deployment success message and next steps."""
     # Create service status table
     services_info = []
     for name, service in config["services"].items():
         ports = service.get("ports", [])
         port_info = [f"http://localhost:{p.split(':')[0]}" for p in ports]
-        services_info.append(f"• {name}: {service['description']}")
+        services_info.append(f"• {name}")
         if port_info:
             services_info.append(f"  URLs: {', '.join(port_info)}")
     

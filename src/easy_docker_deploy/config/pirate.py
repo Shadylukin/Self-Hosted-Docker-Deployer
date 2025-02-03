@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Any
 from pathlib import Path
 
 from ..utils.logging import get_logger
+from ..config.settings import get_config
 
 logger = get_logger(__name__)
 
@@ -19,13 +20,14 @@ class ServiceConfig:
     ports: List[str]
     volumes: List[str]
     environment: Dict[str, str]
+    comments: Optional[Dict[str, str]] = None
 
 @dataclass
 class PirateConfig:
     """Complete configuration for Pirate mode."""
     services: List[ServiceConfig]
     base_path: Path
-    network_name: str = "pirate_network"
+    network_name: str = get_config().default_network
     compose_version: str = "3.8"
 
     def to_dict(self) -> Dict[str, Any]:
@@ -36,26 +38,36 @@ class PirateConfig:
                 service.name: self._format_service_config(service)
                 for service in self.services
             },
-            "volumes": self._generate_volume_config(),
             "networks": {
                 self.network_name: {
-                    "driver": "bridge"
+                    "driver": "bridge",
+                    "external": True
                 }
-            }
+            },
+            "volumes": self._generate_volume_config()
         }
     
     def _format_service_config(self, service: ServiceConfig) -> Dict[str, Any]:
         """Format a service configuration with proper paths."""
         paths = self._get_path_mappings()
         
-        return {
+        # Format volumes with proper paths
+        volumes = []
+        for volume in service.volumes:
+            for key, path in paths.items():
+                volume = volume.replace(f"{{{key}}}", path)
+            volumes.append(volume)
+        
+        config = {
             "image": service.image,
             "ports": service.ports,
-            "volumes": [vol.format(**paths) for vol in service.volumes],
+            "volumes": volumes,
             "environment": service.environment,
             "networks": [self.network_name],
             "restart": "unless-stopped"
         }
+        
+        return config
     
     def _get_path_mappings(self) -> Dict[str, str]:
         """Get path mappings for volume configuration."""
@@ -76,13 +88,13 @@ class PirateConfigFactory:
     """Factory for creating Pirate mode configurations."""
     
     @staticmethod
-    def create_media_server() -> ServiceConfig:
-        """Create media server configuration."""
+    def create_plex() -> ServiceConfig:
+        """Create Plex media server configuration."""
         return ServiceConfig(
-            name="media-server",
-            description="Media streaming and organization service",
-            image="linuxserver/jellyfin:latest",
-            ports=["8096:8096"],
+            name="plex",
+            description="Media streaming and organization server",
+            image="linuxserver/plex:latest",
+            ports=["32400:32400"],
             volumes=[
                 "{config}:/config",
                 "{media}:/media"
@@ -90,16 +102,47 @@ class PirateConfigFactory:
             environment={
                 "PUID": "1000",
                 "PGID": "1000",
-                "TZ": "Etc/UTC"
+                "TZ": "Etc/UTC",
+                "VERSION": "docker"
+            },
+            comments={
+                "description": "Plex Media Server - Stream your media collection",
+                "ports": "Port 32400 is used for the web interface and streaming",
+                "volumes": "Config stores Plex settings, Media contains your media files",
+                "environment": "PUID/PGID ensure proper file permissions"
             }
         )
     
     @staticmethod
-    def create_content_aggregator() -> ServiceConfig:
-        """Create content aggregator configuration."""
+    def create_overseerr() -> ServiceConfig:
+        """Create Overseerr configuration."""
         return ServiceConfig(
-            name="content-aggregator",
-            description="Content discovery and organization",
+            name="overseerr",
+            description="Media request and discovery",
+            image="linuxserver/overseerr:latest",
+            ports=["5055:5055"],
+            volumes=[
+                "{config}:/config"
+            ],
+            environment={
+                "PUID": "1000",
+                "PGID": "1000",
+                "TZ": "Etc/UTC"
+            },
+            comments={
+                "description": "Overseerr - Request and discover new media",
+                "ports": "Port 5055 is used for the web interface",
+                "volumes": "Config stores Overseerr settings and database",
+                "environment": "PUID/PGID ensure proper file permissions"
+            }
+        )
+    
+    @staticmethod
+    def create_sonarr() -> ServiceConfig:
+        """Create Sonarr configuration."""
+        return ServiceConfig(
+            name="sonarr",
+            description="TV series management",
             image="linuxserver/sonarr:latest",
             ports=["8989:8989"],
             volumes=[
@@ -111,17 +154,73 @@ class PirateConfigFactory:
                 "PUID": "1000",
                 "PGID": "1000",
                 "TZ": "Etc/UTC"
+            },
+            comments={
+                "description": "Sonarr - Automated TV series management",
+                "ports": "Port 8989 is used for the web interface",
+                "volumes": "Config stores settings, Downloads for temporary files, Media for TV shows",
+                "environment": "PUID/PGID ensure proper file permissions"
             }
         )
     
     @staticmethod
-    def create_download_manager() -> ServiceConfig:
-        """Create download manager configuration."""
+    def create_radarr() -> ServiceConfig:
+        """Create Radarr configuration."""
         return ServiceConfig(
-            name="download-manager",
-            description="Download automation service",
+            name="radarr",
+            description="Movie collection management",
+            image="linuxserver/radarr:latest",
+            ports=["7878:7878"],
+            volumes=[
+                "{config}:/config",
+                "{downloads}:/downloads",
+                "{media}:/media"
+            ],
+            environment={
+                "PUID": "1000",
+                "PGID": "1000",
+                "TZ": "Etc/UTC"
+            },
+            comments={
+                "description": "Radarr - Automated movie management",
+                "ports": "Port 7878 is used for the web interface",
+                "volumes": "Config stores settings, Downloads for temporary files, Media for movies",
+                "environment": "PUID/PGID ensure proper file permissions"
+            }
+        )
+    
+    @staticmethod
+    def create_prowlarr() -> ServiceConfig:
+        """Create Prowlarr configuration."""
+        return ServiceConfig(
+            name="prowlarr",
+            description="Indexer management",
+            image="linuxserver/prowlarr:latest",
+            ports=["9696:9696"],
+            volumes=[
+                "{config}:/config"
+            ],
+            environment={
+                "PUID": "1000",
+                "PGID": "1000",
+                "TZ": "Etc/UTC"
+            },
+            comments={
+                "description": "Prowlarr - Indexer management and proxy",
+                "ports": "Port 9696 is used for the web interface",
+                "volumes": "Config stores settings and indexer data",
+                "environment": "PUID/PGID ensure proper file permissions"
+            }
+        )
+    
+    @staticmethod
+    def create_qbittorrent() -> ServiceConfig:
+        """Create qBittorrent configuration."""
+        return ServiceConfig(
+            name="qbittorrent",
+            description="Download client",
             image="linuxserver/qbittorrent:latest",
-            ports=["8080:8080"],
+            ports=["8080:8080", "6881:6881", "6881:6881/udp"],
             volumes=[
                 "{config}:/config",
                 "{downloads}:/downloads"
@@ -131,38 +230,39 @@ class PirateConfigFactory:
                 "PGID": "1000",
                 "TZ": "Etc/UTC",
                 "WEBUI_PORT": "8080"
+            },
+            comments={
+                "description": "qBittorrent - Download client with web interface",
+                "ports": "Port 8080 for web UI, 6881 for torrent communication",
+                "volumes": "Config stores settings, Downloads for downloaded files",
+                "environment": "PUID/PGID ensure proper file permissions"
             }
         )
 
-def get_pirate_config(base_path: Optional[Path] = None) -> Dict[str, Any]:
+def get_pirate_config(media_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Generate a complete configuration for Pirate mode.
+    Get the complete Pirate mode configuration.
     
     Args:
-        base_path: Optional base path for media storage
+        media_path: Optional path for media storage
         
     Returns:
-        Dict containing the complete Pirate mode configuration
+        Dictionary containing the complete configuration
     """
-    logger.debug("Generating Pirate mode configuration")
+    if media_path is None:
+        media_path = Path.home() / "media"
     
-    if base_path is None:
-        base_path = Path.home() / "media"
-        logger.debug(f"Using default base path: {base_path}")
-    
-    # Create service configurations
     factory = PirateConfigFactory()
-    services = [
-        factory.create_media_server(),
-        factory.create_content_aggregator(),
-        factory.create_download_manager()
-    ]
-    
-    # Create complete configuration
     config = PirateConfig(
-        services=services,
-        base_path=base_path
+        services=[
+            factory.create_plex(),
+            factory.create_overseerr(),
+            factory.create_sonarr(),
+            factory.create_radarr(),
+            factory.create_prowlarr(),
+            factory.create_qbittorrent()
+        ],
+        base_path=media_path
     )
     
-    logger.debug("Configuration generated successfully")
     return config.to_dict() 

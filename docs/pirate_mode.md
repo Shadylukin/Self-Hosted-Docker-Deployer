@@ -1,4 +1,4 @@
-# Pirate Mode Guide
+# 🏴‍☠️ Pirate Mode Guide
 
 This guide explains how to use the Pirate mode feature to set up a complete media automation environment.
 
@@ -6,9 +6,12 @@ This guide explains how to use the Pirate mode feature to set up a complete medi
 
 Pirate mode automatically deploys a curated collection of services designed to work together for media automation:
 
-- Media Server: Stream and organize your media collection
-- Content Aggregator: Discover and organize content
-- Download Manager: Automate downloads
+- **Plex**: Stream and organize your media collection
+- **Overseerr**: Request and discover new content
+- **Sonarr**: Automate TV show downloads and management
+- **Radarr**: Automate movie downloads and management
+- **Prowlarr**: Manage and coordinate indexers
+- **qBittorrent**: Handle downloads with a web interface
 
 ## Quick Start
 
@@ -49,124 +52,157 @@ easy-docker-deploy pirate --timezone "America/New_York"
 
 ## Service Details
 
-### Media Server
+### Plex
 - Purpose: Stream and organize your media collection
-- Default port: 8096
-- Web interface: http://localhost:8096
+- Default port: 32400
+- Web interface: http://localhost:32400/web
 - Default paths:
-  - Config: `<media-path>/config`
+  - Config: `<media-path>/config/plex`
   - Media: `<media-path>/media`
 
-### Content Aggregator
-- Purpose: Discover and organize content
+### Overseerr
+- Purpose: Request and discover new content
+- Default port: 5055
+- Web interface: http://localhost:5055
+- Default paths:
+  - Config: `<media-path>/config/overseerr`
+
+### Sonarr
+- Purpose: TV show automation
 - Default port: 8989
 - Web interface: http://localhost:8989
 - Default paths:
-  - Config: `<media-path>/config`
+  - Config: `<media-path>/config/sonarr`
   - Downloads: `<media-path>/downloads`
-  - Media: `<media-path>/media`
+  - Media: `<media-path>/media/tv`
 
-### Download Manager
-- Purpose: Automate downloads
+### Radarr
+- Purpose: Movie automation
+- Default port: 7878
+- Web interface: http://localhost:7878
+- Default paths:
+  - Config: `<media-path>/config/radarr`
+  - Downloads: `<media-path>/downloads`
+  - Media: `<media-path>/media/movies`
+
+### Prowlarr
+- Purpose: Indexer management
+- Default port: 9696
+- Web interface: http://localhost:9696
+- Default paths:
+  - Config: `<media-path>/config/prowlarr`
+
+### qBittorrent
+- Purpose: Download management
 - Default port: 8080
 - Web interface: http://localhost:8080
+- Default credentials: admin/adminadmin
 - Default paths:
-  - Config: `<media-path>/config`
+  - Config: `<media-path>/config/qbittorrent`
   - Downloads: `<media-path>/downloads`
 
 ## Initial Setup
 
 1. After deployment, access each service through its web interface
 2. Complete the initial setup wizards for each service
-3. Configure the Content Aggregator to use the Download Manager:
-   - In Content Aggregator settings, add a new download client
-   - Use "download-manager" as the hostname
-   - Use the default port 8080
+3. Configure service integration:
 
-## Automation Setup
+### Prowlarr Setup
+1. Add your preferred indexers
+2. Configure Sonarr/Radarr integration:
+   - Go to Settings -> Apps
+   - Add Sonarr and Radarr applications
+   - Use service names as hostnames (e.g., "sonarr", "radarr")
 
-### Content Organization
+### Sonarr/Radarr Setup
+1. Add qBittorrent as download client:
+   - Host: qbittorrent
+   - Port: 8080
+   - Username: admin
+   - Password: adminadmin
+2. Configure media paths:
+   - Downloads: /downloads
+   - TV Shows (Sonarr): /media/tv
+   - Movies (Radarr): /media/movies
+3. Add Prowlarr as an indexer
 
-1. In the Content Aggregator:
-   - Add your preferred content sources
-   - Configure quality preferences
-   - Set up naming conventions
-   - Configure download path: `/downloads`
-   - Configure media path: `/media`
+### Overseerr Setup
+1. Connect to Plex:
+   - Use Plex claim token or sign in
+2. Configure Sonarr/Radarr integration:
+   - Add Sonarr and Radarr in settings
+   - Use service names as hostnames
+   - Use default ports
 
-### Download Automation
-
-1. In the Download Manager:
-   - Configure download speed limits if needed
-   - Set up categories for different content types
-   - Configure the default save path to `/downloads`
-
-### Media Library
-
-1. In the Media Server:
-   - Add `/media` as your library path
-   - Configure library types (Movies, TV Shows, etc.)
-   - Set up metadata agents
-   - Configure auto-scan of new content
+### Plex Setup
+1. Access Plex web interface
+2. Create libraries:
+   - Movies: /media/movies
+   - TV Shows: /media/tv
+3. Configure scanning and metadata agents
 
 ## Troubleshooting
 
 ### Common Issues
 
 1. **Services can't communicate**
-   - Ensure all services are on the `pirate_network`
+   - Ensure all services are on the same Docker network
    - Check that service names are used as hostnames
+   - Verify network settings in Docker
 
 2. **Download issues**
-   - Verify path mappings in Content Aggregator
-   - Check Download Manager categories
-   - Ensure proper permissions on media directories
+   - Check qBittorrent connection in Sonarr/Radarr
+   - Verify download path permissions
+   - Test indexer connectivity in Prowlarr
 
 3. **Media not appearing**
    - Check file permissions
-   - Verify path mappings
-   - Force a library scan in Media Server
+   - Verify path mappings in all services
+   - Ensure media follows naming conventions
 
-### Logs
-
-To view service logs:
-
-```bash
-docker-compose logs -f [service-name]
-```
-
-Replace [service-name] with:
-- media-server
-- content-aggregator
-- download-manager
+4. **Port conflicts**
+   - Check for other services using the same ports
+   - Modify port mappings if needed
+   - Ensure Docker host ports are available
 
 ## Security Considerations
 
-1. **Network Security**
-   - All services are configured to only be accessible locally
-   - Use a VPN or reverse proxy for remote access
-   - Change default passwords immediately
+1. **Change default passwords**
+   - qBittorrent web interface
+   - Any other service-specific credentials
 
-2. **Storage**
-   - Regular backups of the config directory are recommended
+2. **Network security**
+   - Consider using a VPN for downloads
+   - Restrict access to service UIs
+   - Use secure passwords for all services
+
+3. **File permissions**
+   - Ensure proper PUID/PGID settings
+   - Restrict access to media directories
+   - Regular security audits
+
+## Maintenance
+
+1. **Regular updates**
+   - Use Watchtower for automatic updates
+   - Check for application-specific updates
+   - Keep host system updated
+
+2. **Backups**
+   - Regular backup of config directories
+   - Export important settings
+   - Document any custom configurations
+
+3. **Monitoring**
+   - Check service logs regularly
    - Monitor disk space usage
-   - Set up disk space alerts
-
-## Updating
-
-Services will automatically update to the latest version when restarted:
-
-```bash
-docker-compose pull
-docker-compose up -d
-```
+   - Set up notifications for issues
 
 ## Additional Resources
 
-- [Media Server Documentation](https://jellyfin.org/docs)
-- [Content Aggregator Guide](https://wiki.servarr.com)
-- [Download Manager Manual](https://github.com/qbittorrent/qBittorrent/wiki)
-
-## Legal Considerations
-
-This tool is designed for managing your personal media collection. Always ensure you have the right to access and store any content you manage with these tools. 
+- [Plex Documentation](https://support.plex.tv/articles/)
+- [Sonarr Wiki](https://wiki.servarr.com/sonarr)
+- [Radarr Wiki](https://wiki.servarr.com/radarr)
+- [Prowlarr Wiki](https://wiki.servarr.com/prowlarr)
+- [qBittorrent Documentation](https://github.com/qbittorrent/qBittorrent/wiki)
+- [Overseerr Documentation](https://docs.overseerr.dev/) 

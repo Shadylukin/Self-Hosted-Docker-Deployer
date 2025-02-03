@@ -1,5 +1,5 @@
 """
-Main CLI entry point for Easy Docker Deploy.
+Main CLI module for Self-Hosted Docker Deployer.
 """
 import os
 from pathlib import Path
@@ -10,26 +10,28 @@ from rich.console import Console
 
 from ..config.settings import get_config
 from ..utils.logging import setup_logging, get_logger
-from .commands import deploy
-from .commands.list import list_services
-from .commands.pirate import pirate
+from .commands.list import app as list_app
+from .commands.pirate import app as pirate_app
 
-# Create Typer app
+# Initialize app and console
 app = typer.Typer(
-    help="Easy Docker Deploy - Deploy Docker applications with ease",
-    add_completion=False
+    help="Self-Hosted Docker Deployer - A tool for managing self-hosted applications"
 )
-
-# Add sub-commands
-app.add_typer(deploy.app, name="deploy")
-app.add_typer(list_services.app, name="list")
-app.add_typer(pirate.app, name="pirate")
-
-# Create console
 console = Console()
 
 # Get logger
 logger = get_logger(__name__)
+
+# Add commands
+app.add_typer(list_app, name="list", help="List available applications")
+app.add_typer(pirate_app, name="pirate", help="Manage pirate mode services")
+
+@app.callback()
+def callback() -> None:
+    """
+    Self-Hosted Docker Deployer - A tool for managing self-hosted applications.
+    """
+    pass
 
 @app.callback()
 def main(
@@ -53,7 +55,7 @@ def main(
     ),
 ) -> None:
     """
-    Easy Docker Deploy - Deploy Docker applications with ease.
+    Self-Hosted Docker Deployer - Deploy Docker applications with ease.
     """
     try:
         # Setup logging

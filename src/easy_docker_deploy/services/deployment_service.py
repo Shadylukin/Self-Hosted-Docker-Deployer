@@ -3,19 +3,19 @@ Service layer for handling Docker deployments.
 """
 import os
 import socket
+import subprocess
+import yaml
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 from ..config.settings import get_config
 from ..config.docker import DockerConfig
+from ..config.yaml_manager import YAMLManager
 from ..parser.github_parser import Application
 from ..utils.logging import get_logger, log_with_context
+from ..utils.exceptions import DeploymentError
 
 logger = get_logger(__name__)
-
-class DeploymentError(Exception):
-    """Base class for deployment-related errors."""
-    pass
 
 class PortAllocationError(DeploymentError):
     """Raised when a port cannot be allocated."""
@@ -35,6 +35,7 @@ class DeploymentService:
     def __init__(self):
         self.config = get_config()
         self.base_dir = Path(self.config.default_volume_base).resolve()
+        self.yaml_manager = YAMLManager(self.config.base_dir)
         
         # Common port mappings for well-known applications
         self.PORT_MAPPINGS = {
@@ -71,6 +72,56 @@ class DeploymentService:
                 "MYSQL_PASSWORD": "nextcloud"
             },
         }
+    
+    def deploy(self, config: dict) -> None:
+        """
+        Deploy services using Docker Compose.
+        
+        Args:
+            config: Dictionary containing service configurations
+            
+        Raises:
+            DeploymentError: If deployment fails
+        """
+        try:
+            # Create Docker network if it doesn't exist
+            network_name = self.config.default_network
+            logger.info(f"Creating Docker network: {network_name}")
+            result = subprocess.run(
+                ["docker", "network", "create", network_name],
+                capture_output=True,
+                text=True
+            )
+            if result.returncode != 0 and "already exists" not in result.stderr:
+                raise DeploymentError(
+                    f"Failed to create Docker network: {result.stderr}"
+                )
+            
+            # Update configuration
+            logger.info("Updating service configuration")
+            self.yaml_manager.update_config(config)
+            
+            # Deploy using docker-compose
+            logger.info("Starting Docker Compose deployment")
+            result = subprocess.run(
+                ["docker-compose", "-f", str(self.yaml_manager.compose_file), "up", "-d"],
+                cwd=str(self.yaml_manager.base_dir),
+                capture_output=True,
+                text=True
+            )
+            
+            if result.returncode != 0:
+                raise DeploymentError(
+                    f"Docker Compose deployment failed: {result.stderr}"
+                )
+                
+            logger.info("Docker Compose deployment completed successfully")
+            
+        except Exception as e:
+            logger.error(f"Deployment failed: {str(e)}")
+            if not isinstance(e, DeploymentError):
+                raise DeploymentError(f"Failed to deploy services: {str(e)}")
+            raise
     
     def deploy_application(self, app: Application) -> bool:
         """
