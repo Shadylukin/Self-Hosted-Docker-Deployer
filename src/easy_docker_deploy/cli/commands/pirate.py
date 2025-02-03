@@ -12,6 +12,7 @@ from ...config.pirate import get_pirate_config
 from ...services.deployment_service import DeploymentService
 from ...utils.validation import validate_path
 from ...utils.logging import get_logger
+from ...wizard.interactive import DeploymentWizard
 
 # Initialize logger and console
 logger = get_logger(__name__)
@@ -27,15 +28,19 @@ class PirateDeploymentError(Exception):
 def deploy(
     media_path: Optional[str] = typer.Option(None, help="Base path for media storage (will be created if it doesn't exist)"),
     timezone: str = typer.Option("Etc/UTC", help="Timezone for the services (e.g. America/New_York)"),
-    verbose: bool = typer.Option(False, help="Enable verbose logging")
+    verbose: bool = typer.Option(False, help="Enable verbose logging"),
+    interactive: bool = typer.Option(True, help="Use interactive wizard mode")
 ) -> None:
     """
     Deploy a preconfigured suite of media automation services.
     
     This command sets up a complete media automation environment with:
-    - Media streaming server
-    - Content aggregation and organization
-    - Download automation
+    - Plex: Media streaming server
+    - Overseerr: Request management and discovery
+    - Sonarr: TV show automation
+    - Radarr: Movie automation
+    - Prowlarr: Indexer management
+    - qBittorrent: Download client
     
     All services are configured to work together out of the box.
     """
@@ -44,8 +49,35 @@ def deploy(
         if verbose:
             logger.setLevel("DEBUG")
         
-        # Validate and create media path
-        media_path_obj = _setup_media_path(media_path)
+        if interactive:
+            # Use interactive wizard
+            wizard = DeploymentWizard()
+            
+            # Show welcome message
+            wizard.welcome()
+            
+            # Check prerequisites
+            if not wizard.check_prerequisites():
+                raise PirateDeploymentError("Prerequisites not met")
+            
+            # Configure media path
+            media_path_obj = wizard.configure_media_path(
+                default_path=Path(media_path) if media_path else None
+            )
+            
+            # Configure services
+            service_config = wizard.configure_services()
+            
+            # Show deployment plan
+            wizard.show_deployment_plan(service_config)
+            
+            # Confirm deployment
+            if not typer.confirm("Ready to deploy?"):
+                logger.info("Deployment cancelled by user")
+                raise typer.Exit()
+        else:
+            # Use command line arguments
+            media_path_obj = _setup_media_path(media_path)
         
         # Generate and validate configuration
         config = _generate_configuration(media_path_obj, timezone)

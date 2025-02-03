@@ -1,75 +1,81 @@
 # Easy Docker Deploy 🐳
 
-A powerful, user-friendly tool for deploying and managing self-hosted Docker applications, with a special focus on media automation services.
+A powerful tool for deploying and managing Docker containers with ease. Perfect for home media servers and self-hosted applications.
 
 ## ✨ Features
 
-- 🚀 **Easy Deployment**: Deploy Docker applications with a single command
-- 🏴‍☠️ **Pirate Mode**: One-click deployment of a complete media automation stack
-- 🔄 **Service Integration**: Automatic service discovery and configuration
-- 📁 **Volume Management**: Smart handling of persistent storage
-- 🌐 **Network Configuration**: Automatic network setup and service discovery
-- 🔒 **Security First**: Secure defaults and best practices built-in
+- 🧙‍♂️ Interactive deployment wizard
+- 📦 Pre-configured service bundles
+- 🔒 Security-focused defaults
+- 🎯 Zero-configuration required
+- 📊 Real-time resource monitoring
+- 🗺️ Interactive service maps
+- 🚦 Enhanced status indicators
 
-## 🏃‍♂️ Quick Start
+## 🚀 Quick Start
 
-### Installation
+```bash
+# Install the package
+pip install easy-docker-deploy
+
+# Start the deployment wizard
+easy-docker-deploy pirate deploy
+```
+
+## 🏴‍☠️ Pirate Mode
+
+Deploy a complete media automation stack with:
+
+- **Plex**: Media streaming server
+- **Overseerr**: Content request and discovery
+- **Sonarr**: TV show automation
+- **Radarr**: Movie automation
+- **Prowlarr**: Indexer management
+- **qBittorrent**: Download client
+
+## 📊 Resource Monitoring
+
+Monitor your containers in real-time:
+
+- CPU and memory usage
+- Network I/O statistics
+- Disk I/O metrics
+- Container health status
+- Interactive resource graphs
+
+## 🗺️ Service Maps
+
+Visualize your deployment:
+
+- Service dependencies
+- Network connections
+- Volume mappings
+- Health indicators
+- Port mappings
+
+## 🚦 Status Indicators
+
+Enhanced status monitoring:
+
+- Real-time health checks
+- Resource usage alerts
+- Service state indicators
+- Network connectivity status
+- Volume mount verification
+
+## 📚 Documentation
+
+- [Installation Guide](docs/installation.md)
+- [Configuration Guide](docs/configuration.md)
+- [Pirate Mode Guide](docs/pirate_mode.md)
+- [Troubleshooting](docs/troubleshooting.md)
+
+## 🛠️ Development
 
 ```bash
 # Clone the repository
 git clone https://github.com/yourusername/easy-docker-deploy.git
-cd easy-docker-deploy
 
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### Basic Usage
-
-Deploy a single application:
-```bash
-easy-docker-deploy deploy app-name
-```
-
-List available applications:
-```bash
-easy-docker-deploy list
-```
-
-### 🏴‍☠️ Pirate Mode
-
-Deploy a complete media automation suite with one command:
-```bash
-easy-docker-deploy pirate
-```
-
-#### Included Services:
-- **Plex**: Media server for streaming your content
-- **Overseerr**: Request management and media discovery
-- **Sonarr**: TV show automation and management
-- **Radarr**: Movie automation and management
-- **Prowlarr**: Indexer management and proxy
-- **qBittorrent**: Download client with web interface
-
-Customize the deployment:
-```bash
-easy-docker-deploy pirate --media-path /path/to/media --timezone "America/New_York"
-```
-
-## 📚 Documentation
-
-- [Pirate Mode Guide](docs/pirate_mode.md): Detailed setup and configuration
-- [Deployment Guide](docs/Deployment_Assistant_Design_Document.md): Advanced deployment options
-
-## 🛠️ Development
-
-### Setup Development Environment
-
-```bash
 # Install development dependencies
 pip install -r requirements-dev.txt
 
@@ -77,34 +83,23 @@ pip install -r requirements-dev.txt
 pytest
 ```
 
-### Running Tests
-
-```bash
-# Run all tests
-pytest
-
-# Run specific test file
-pytest tests/test_config/test_pirate.py
-
-# Run with coverage
-pytest --cov=src
-```
-
 ## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
-
-### Guidelines
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## ☕ Support the Project
+
+If you find this project helpful, consider buying me a coffee!
+
+<a href="https://www.buymeacoffee.com/lukinackc">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;">
+</a>
+
+<script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="lukinackc" data-color="#FFDD00" data-emoji=""  data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" ></script>
 
 ## 🙏 Acknowledgments
 
