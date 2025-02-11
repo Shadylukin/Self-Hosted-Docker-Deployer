@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import re
 import yaml
+import subprocess
 from typing import Dict, List, Optional
 from ..config.docker import DockerConfig
 from ..generator.compose import DockerComposeGenerator
@@ -55,6 +56,15 @@ class DeploymentManager:
             bool: True if deployment was successful
         """
         try:
+            # Check if docker-compose is installed
+            result = subprocess.run(
+                ["docker-compose", "--version"],
+                capture_output=True,
+                text=True
+            )
+            if result.returncode != 0:
+                raise Exception("docker-compose command not found. Please install docker-compose.")
+            
             # Sanitize the application name for the deployment directory
             safe_name = self._sanitize_name(app_name)
             deploy_dir = self.base_dir / safe_name

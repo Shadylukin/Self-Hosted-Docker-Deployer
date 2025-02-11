@@ -177,6 +177,12 @@ case "$OS" in
         ;;
 esac
 
+# Check if pip is installed
+if ! command -v pip &> /dev/null; then
+    echo -e "${RED}pip is required but not installed. Please install pip first.${NC}"
+    exit 1
+fi
+
 # Install pytest and pytest-cov
 echo -e "\n${BLUE}Installing pytest and pytest-cov...${NC}"
 pip install pytest pytest-cov

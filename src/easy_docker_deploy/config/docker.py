@@ -88,4 +88,4 @@ class DockerConfig:
     def from_compose_yaml(cls, compose_yaml: str) -> "DockerConfig":
         """Create configuration from docker-compose.yml format string."""
         compose_dict = yaml.safe_load(compose_yaml)
-        return cls.from_compose_dict(compose_dict) 
+        return cls.from_compose_dict(compose_dict)

@@ -75,6 +75,15 @@ class DockerManager:
             CommandError: If the command fails
         """
         try:
+            # Check if docker-compose is installed
+            result = subprocess.run(
+                ["docker-compose", "--version"],
+                capture_output=True,
+                text=True
+            )
+            if result.returncode != 0:
+                raise CommandError("docker-compose command not found. Please install docker-compose.")
+            
             logger.info(
                 "Starting container",
                 **log_with_context(directory=str(deploy_dir))
@@ -115,6 +124,15 @@ class DockerManager:
             CommandError: If the command fails
         """
         try:
+            # Check if docker-compose is installed
+            result = subprocess.run(
+                ["docker-compose", "--version"],
+                capture_output=True,
+                text=True
+            )
+            if result.returncode != 0:
+                raise CommandError("docker-compose command not found. Please install docker-compose.")
+            
             logger.info(
                 "Stopping container",
                 **log_with_context(directory=str(deploy_dir))

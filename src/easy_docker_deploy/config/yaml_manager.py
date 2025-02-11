@@ -162,6 +162,8 @@ class YAMLManager:
             
             return True
             
+        except FileNotFoundError:
+            raise ConfigurationError("docker-compose command not found. Please install docker-compose.")
         except Exception as e:
             if isinstance(e, ConfigurationError):
                 raise
