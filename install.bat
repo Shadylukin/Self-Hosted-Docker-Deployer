@@ -56,6 +56,14 @@ call venv\Scripts\activate.bat
 echo Installing Easy Docker Deploy...
 pip install -e .
 
+:: Install pytest and pytest-cov
+echo Installing pytest and pytest-cov...
+pip install pytest pytest-cov
+
+:: Run tests with coverage report
+echo Running tests with coverage report...
+pytest --cov=src/easy_docker_deploy --cov-report=term-missing
+
 :: Create command file
 echo Creating convenient commands...
 echo @echo off > edd.bat

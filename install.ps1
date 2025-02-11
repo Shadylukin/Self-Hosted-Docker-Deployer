@@ -308,6 +308,28 @@ try {
     exit 1
 }
 
+# Install pytest and pytest-cov
+Write-Host "Installing pytest and pytest-cov... " -NoNewline
+try {
+    pip install pytest pytest-cov 2>&1 | Out-Null
+    Write-Host "[OK]" -ForegroundColor Green
+} catch {
+    Write-Host "[FAILED]" -ForegroundColor Red
+    Write-Host "Error installing pytest and pytest-cov: $_"
+    exit 1
+}
+
+# Run tests with coverage report
+Write-Host "Running tests with coverage report... " -NoNewline
+try {
+    pytest --cov=src/easy_docker_deploy --cov-report=term-missing 2>&1 | Out-Null
+    Write-Host "[OK]" -ForegroundColor Green
+} catch {
+    Write-Host "[FAILED]" -ForegroundColor Red
+    Write-Host "Error running tests: $_"
+    exit 1
+}
+
 # Create PowerShell profile if it doesn't exist
 if (!(Test-Path $PROFILE)) {
     Write-Host "Creating PowerShell profile... " -NoNewline
@@ -370,4 +392,4 @@ Write-Host "- Make sure Docker Desktop is running"
 Write-Host "- Check the documentation at: https://github.com/yourusername/easy-docker-deploy"
 Write-Host "- Report issues at: https://github.com/yourusername/easy-docker-deploy/issues"
 
-Write-Host "`nTip: The wizard will guide you through selecting and deploying applications!" 
+Write-Host "`nTip: The wizard will guide you through selecting and deploying applications!"

@@ -40,6 +40,14 @@ source venv/bin/activate
 echo "Installing dependencies..."
 pip install -e .
 
+# Install pytest and pytest-cov
+echo "Installing pytest and pytest-cov..."
+pip install pytest pytest-cov
+
+# Run tests with coverage report
+echo "Running tests with coverage report..."
+pytest --cov=src/easy_docker_deploy --cov-report=term-missing
+
 # Create aliases for easier usage
 echo "Creating aliases..."
 SHELL_RC="$HOME/.bashrc"
@@ -62,4 +70,4 @@ echo -e "\nYou can now use the following commands:"
 echo -e "${BLUE}edd list${NC} - List available applications"
 echo -e "${BLUE}edd deploy <number>${NC} - Deploy application by number"
 echo -e "${BLUE}edd-search <term>${NC} - Search and deploy applications"
-echo -e "\nPlease restart your terminal or run: source $SHELL_RC" 
+echo -e "\nPlease restart your terminal or run: source $SHELL_RC"
