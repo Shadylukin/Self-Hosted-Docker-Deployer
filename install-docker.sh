@@ -30,7 +30,7 @@ check_requirements() {
     if [ "$EUID" -ne 0 ]; then
         echo -e "${RED}Please run as root or with sudo${NC}"
         return 1
-    }
+    fi
     
     # Check architecture
     ARCH=$(uname -m)
@@ -177,6 +177,14 @@ case "$OS" in
         ;;
 esac
 
+# Install pytest and pytest-cov
+echo -e "\n${BLUE}Installing pytest and pytest-cov...${NC}"
+pip install pytest pytest-cov
+
+# Run tests with coverage report
+echo -e "\n${BLUE}Running tests with coverage report...${NC}"
+pytest --cov=src/easy_docker_deploy --cov-report=term-missing
+
 # Final instructions
 echo -e "\n${GREEN}Installation completed successfully!${NC}"
 echo -e "\n${YELLOW}Next steps:${NC}"
@@ -189,4 +197,4 @@ echo -e "\n${BLUE}Would you like to proceed with Easy Docker Deploy installation
 read -r proceed
 if [[ $proceed =~ ^[Yy]$ ]]; then
     exec ./install.sh
-fi 
+fi
